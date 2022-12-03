@@ -51,7 +51,7 @@ class Request extends ConnectDb
         if(count($datas) !== 0){
 
             $count = 1;
-            foreach($datas as $key => $value){
+            foreach($datas as $value){
                 
                 if(is_numeric($value)){
                     
