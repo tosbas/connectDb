@@ -18,10 +18,10 @@ class ConnectDb
      */
     public function connect()
     {
-        $this->host = "DB_HOST";
-        $this->db_name = "DB_NAME";
-        $this->username = "DB_USERNAME";
-        $this->password = "DB_PASSWORD";
+        $this->host = "localhost";
+        $this->db_name = "testdb";
+        $this->username = "root";
+        $this->password = "";
 
         $pdo = new PDO("mysql:host={$this->host};dbname={$this->db_name}", "{$this->username}", "{$this->password}");
 
@@ -35,14 +35,17 @@ class ConnectDb
 class Request extends ConnectDb
 {
 
+
+    private int $resultCount = 0;
+
    /**
     * Function pour simplifier les requetes
     */
-    public function query(string $query ,string $param ,array $datas = []) : array
+    public function query(string $query ,string $param = NULL ,array $datas = [])
     {
 
 
-        if(!in_array($param, ["ALL", "UNIQUE"])){
+        if(!in_array($param, [NULL,"ALL", "UNIQUE"])){
             trigger_error(sprintf('%s n\'est pas valide. Les status possibles sont : ALL et UNIQUE', $param, E_USER_ERROR));
         }
 
@@ -51,21 +54,20 @@ class Request extends ConnectDb
         if(count($datas) !== 0){
 
             $count = 1;
-            foreach($datas as $value){
+            foreach($datas as &$value){
                 
                 if(is_numeric($value)){
-                    
-                    $dataSanitize = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-                    $result->bindParam($count, $dataSanitize, PDO::PARAM_INT);
+                
+                    $result->bindParam($count, $value, PDO::PARAM_INT);
 
                 }else{
-                    
-                    $dataSanitize = filter_var($value, FILTER_SANITIZE_STRING);
-                    $result->bindParam($count, $dataSanitize, PDO::PARAM_STR);
+
+                    $result->bindParam($count, $value, PDO::PARAM_STR);
+                       
                 }
 
                 $count++;
-                
+
             }
         }
 
@@ -77,7 +79,7 @@ class Request extends ConnectDb
             break;
 
             case "UNIQUE":
-                $fetchData = $result->fetch();  
+                $fetchData = $result->fetch(); 
             break;
 
             default:
@@ -85,8 +87,13 @@ class Request extends ConnectDb
             break;
         }
 
-       
+        $this->resultCount = $result->rowCount();
 
         return $fetchData;
     }
+    
+    public function rowCount(){
+        return $this->resultCount;
+    }
+
 }
