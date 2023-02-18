@@ -72,22 +72,21 @@ class Request extends ConnectDb
         }
 
         $result->execute();
+        $this->resultCount = $result->rowCount();
 
-        switch($param){
+        switch ($param) {
             case "ALL":
                 $fetchData = $result->fetchAll();
-            break;
+                break;
 
             case "UNIQUE":
-                $fetchData = $result->fetch(); 
-            break;
+                $fetchData = $result->fetch();
+                break;
 
-            default:
-                $fetchData = NULL;  
-            break;
+            case NULL:
+                $fetchData = $this->resultCount;
+                break;
         }
-
-        $this->resultCount = $result->rowCount();
 
         return $fetchData;
     }
